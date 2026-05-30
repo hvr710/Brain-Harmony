@@ -5,7 +5,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["modules*", "configs*", "libs*", "datasets*", "checkpoints*", "experiments*"]  # 只包含 modules 和 configs
+include = ["modules*", "configs*", "libs*", "datasets*", "checkpoints*", "experiments*", "brainharmony_downstream*"]
 exclude = [
     "tests*", 
     "*.pyc", 
