@@ -16,6 +16,19 @@ Use `--data_profile hs` on the Volcengine host.
 - labels: `/vePFS-0x0d/nzh/data/fmri/data_csv`
 - splits: `/vePFS-0x0d/nzh/data/fmri/split`
 
+The two profiles are independent. If a machine has a slightly different label,
+split, or fMRI mount, override only that profile without editing code:
+
+```bash
+export BH_NAS_FMRI_ROI_ROOT=/path/to/nas/roi
+export BH_NAS_LABEL_ROOT=/path/to/nas/data_csv
+export BH_NAS_SPLIT_ROOT=/path/to/nas/split
+
+export BH_HS_FMRI_ROI_ROOT=/path/to/hs/roi
+export BH_HS_LABEL_ROOT=/path/to/hs/data_csv
+export BH_HS_SPLIT_ROOT=/path/to/hs/split
+```
+
 The split files are `train_v1.txt`, `val_v1.txt`, and `test_v1.txt` under each dataset folder.
 
 ## What changed from v2
@@ -47,4 +60,3 @@ python -m brainharmony_downstream.train --task omni_abide_age --mode ft --data_p
 python -m brainharmony_downstream.v3_formal_launch --benchmark origin --root 1_origin_ds/outputs --data_profile nas --cuda 0 --shards 1
 python -m brainharmony_downstream.v3_formal_launch --benchmark omni --root 2_omni_ds/outputs --data_profile nas --cuda 5,6,7 --shards 3
 ```
-

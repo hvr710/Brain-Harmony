@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from dataclasses import replace
 from pathlib import Path
 
 
@@ -39,6 +40,16 @@ def _exists(profile: DataProfile) -> bool:
     return Path(profile.fmri_roi_root).exists() and Path(profile.label_root).exists() and Path(profile.split_root).exists()
 
 
+def _with_env_overrides(profile: DataProfile) -> DataProfile:
+    prefix = profile.name.upper()
+    return replace(
+        profile,
+        fmri_roi_root=os.environ.get(f"BH_{prefix}_FMRI_ROI_ROOT", os.environ.get("BH_FMRI_ROI_ROOT", profile.fmri_roi_root)),
+        label_root=os.environ.get(f"BH_{prefix}_LABEL_ROOT", os.environ.get("BH_LABEL_ROOT", profile.label_root)),
+        split_root=os.environ.get(f"BH_{prefix}_SPLIT_ROOT", os.environ.get("BH_SPLIT_ROOT", profile.split_root)),
+    )
+
+
 def get_data_profile(name: str = "auto") -> DataProfile:
     requested = (name or "auto").lower()
     if requested == "auto":
@@ -47,14 +58,14 @@ def get_data_profile(name: str = "auto") -> DataProfile:
             requested = env_name
 
     if requested == "nas":
-        return WINDOWS_NAS if os.name == "nt" else LINUX_NAS
+        return _with_env_overrides(WINDOWS_NAS if os.name == "nt" else LINUX_NAS)
     if requested == "hs":
-        return HS
+        return _with_env_overrides(HS)
     if requested not in {"auto", ""}:
         raise ValueError(f"Unknown data profile: {name}. Use auto, nas, or hs.")
 
     candidates = [WINDOWS_NAS] if os.name == "nt" else [LINUX_NAS, HS]
     for profile in candidates:
         if _exists(profile):
-            return profile
-    return candidates[0]
+            return _with_env_overrides(profile)
+    return _with_env_overrides(candidates[0])
